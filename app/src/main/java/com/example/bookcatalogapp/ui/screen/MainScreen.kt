@@ -2,6 +2,9 @@ package com.example.bookcatalogapp.ui.screen
 
 import android.annotation.SuppressLint
 import android.widget.ImageView
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +23,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -34,7 +36,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -116,17 +117,16 @@ fun MainScreen(
             }
         }
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize(),
-        ) {
-            items(filteredBooks.size) { index ->
-                BookItem(
-                    book = filteredBooks[index],
-                    onClick = {
-                        navigate(filteredBooks[index])
-                    }
-                )
+        LazyColumn {
+            items(filteredBooks) { book ->
+                AnimatedContent(targetState = book) { animatedBook ->
+                    BookItem(
+                        book = animatedBook,
+                        onClick = {
+                            navigate(animatedBook)
+                        }
+                    )
+                }
             }
         }
     }
@@ -186,10 +186,15 @@ fun BookItem(book: Book, onClick: () -> Unit) {
 
 @Composable
 fun CategoryChip(category: String, isSelected: Boolean, onClick: () -> Unit) {
+
+    val backgroundColor by animateColorAsState(
+        targetValue = if (isSelected) Color.Gray else Color.DarkGray
+    )
+
     Text(
         modifier = Modifier
             .clip(CircleShape)
-            .background(if (isSelected) Color.Gray else Color.DarkGray)
+            .background(backgroundColor)
             .clickable(onClick = onClick)
             .padding(vertical = 8.dp, horizontal = 16.dp),
         text = category,
@@ -198,26 +203,26 @@ fun CategoryChip(category: String, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 
-@Composable
-@Preview(showBackground = true)
-fun MainScreen_Preview() {
-    MainScreen(
-        books = listOf(
-            Book(
-                name = "Name Of Book",
-                author = "Author",
-                description = "",
-                image = "",
-                category = "Category",
-            ),
-            Book(
-                name = "Name Of Book",
-                author = "Author",
-                description = "",
-                image = "",
-                category = "Category",
-            )
-        ),
-        navigate = {}
-    )
-}
+//@Composable
+//@Preview(showBackground = true)
+//fun MainScreen_Preview() {
+//    MainScreen(
+//        books = listOf(
+//            Book(
+//                name = "Name Of Book",
+//                author = "Author",
+//                description = "",
+//                image = "",
+//                category = "Category",
+//            ),
+//            Book(
+//                name = "Name Of Book",
+//                author = "Author",
+//                description = "",
+//                image = "",
+//                category = "Category",
+//            )
+//        ),
+//        navigate = {}
+//    )
+//}
